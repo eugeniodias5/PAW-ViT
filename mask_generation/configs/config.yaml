@@ -1,0 +1,39 @@
+# --- Defining dataset paths ---
+DATASET:
+  PATH: "datasets/ATRW_augmented_double_entity"
+  # DS_PATH: "datasets/YakReID-103"
+
+  # Define the path to train.txt that is inside the folder pose_datasets of the root folder
+  ANN: "../pose_datasets/ATRW_augmented_double_entity/train.txt"
+  # ANN: "../pose_datasets/YakReID-103/train.txt"
+
+  # Keypoints mapping file AP-10K -> Quadruped-80k
+  MAPPING: "./configs/kpts_mapping/mapping_atrw.json"
+
+  OUTPUT_MASKS: "/ATRW_augmented_double_entity/masks/"
+  # OUTPUT_MASKS: "/YakReID-103/masks/"
+
+
+# --- Defining model weights paths ---
+WEIGHTS:
+  POSE_QUADRUPED: "./weights/hrnet_w32_quadruped80k.pth"
+  POSE_AP10K: "./weights/hrnet_w48_ap10k_256x256-d95ab412_20211029.pth"
+  DET: "weights/yolo11s.pt"
+
+
+
+# --- Config paths (ONLY MODIFY IF CONFIG FILES MOVE) ---
+CONFIG:
+  POSE_QUADRUPED: "./configs/animal_2d_keypoint/topdown_heatmap/superanimal_quadruped/hrnet-w32_quadruped80k.py"
+  POSE_AP10K: "./configs/animal_2d_keypoint/topdown_heatmap/ap10k/td-hm_hrnet-w48_8xb64-210e_ap10k-256x256.py"
+
+
+# --- Defining thresholds ---
+THRESH:
+  # Defining the keypoints threshold
+  QUADRUPED: 0.5 # Quadruped-80k dataset
+  AP10K: 0.5 # AP-10K dataset
+
+
+# Wether we generate a background axis in the masks or not
+BACKGROUND_MASK: True

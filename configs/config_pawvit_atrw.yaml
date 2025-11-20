@@ -1,0 +1,103 @@
+# Model configurations 
+MODEL:
+  # The backbone can be a class of Resnet or a VisionTransformer
+  BACKBONE: 'pawvit_base'
+  BNNECK: True
+  PATCH_SIZE: 16
+  STRIDE_SIZE: 16
+  HEATMAP_SIZE: [64, 64]
+  PRETRAINED: './models/weights/jx_vit_base_p16_224-80ecf9dd.pth'
+
+
+DATASET:
+  TRAIN: 'atrw'
+  TEST: 'atrw'
+  ROOT: 'pose_datasets/ATRW_augmented_double_entity'
+  MASK_DIR: 'segmentation_bckg_abs_0.5'
+  GT_LABELS_PATH: '/pose_datasets/ATRW_augmented_double_entity/gt_test_plain.json'
+  # Number of parts from the semantic segmentation model
+  NUM_PARTS: 5
+  BACKGROUND_KPT: True
+  BATCH_SIZE: 128
+  TEST_BATCH_SIZE: 128
+  NUM_INSTANCES: 16
+  NUM_WORKERS: 8
+  VISIBILITY_THRESHOLD: 0.4
+
+
+INPUT:
+  RESIZE: [256, 256]
+  CROP: [256, 256]
+  MEAN: [0.5, 0.5, 0.5]
+  STD: [0.5, 0.5, 0.5]
+  
+
+OPTIMIZER:
+  NAME: 'adamw'
+  LR: 0.000085
+  LR_CLASSIFIER_RATIO: 1
+  LR_DECODER_RATIO: 1
+  LR_AGG_ATTN_RATIO: 1
+  WEIGHT_DECAY: 0.0005
+  MOMENTUM: 0.9
+
+
+SCHEDULER:
+  DECAY_RATE: 1.0
+  LR_MIN_RATIO: 0.8
+  NAME: CosineLRScheduler
+  NUM_CYCLES: 1
+  WARMUP_EPOCHS_RATIO: 0.05
+  WARMUP_LR_INIT_RATIO: 0.002
+
+
+LOSS:
+  REID: 'CrossEntropyLoss+TripletLoss'   
+  SEG: 'ExponentialLogarithmicLoss'
+  DIRECTION: 'BCEWithLogitsLoss'
+  MINING: 'hard'
+  WEIGHT_REID: 1.0
+  WEIGHT_CE: 1.0 
+  WEIGHT_TRIPLET: 0.5
+  WEIGHT_SEG: 1.0
+  WEIGHT_DIRECTION: 1.0
+  WEIGHT_DICE: 0.5
+  # Take into account if the CE loss is active
+  LABELSMOOTH: True
+  LS_EPSILON: 0.2
+  # Triplet loss margin. Take into account if the Triplet loss is active
+  MARGIN: 0.4
+  # Gamma value if the Exponential Logarithmic loss is used
+  GAMMA: 1.2
+
+
+TRAIN:
+  TEST_ONLY: False
+  # 0 -> Back leg, 1 -> Body, 2 ->  Front leg, 3 -> Head, 4 -> Tail
+  # PARTS_WEIGHT: [1, 1, 1, 1]
+  LOAD_MODEL: False
+  WEIGHTS_PATH: 'exp_pawvit_atrw/best_model_epoch=40.pth'
+  RESUME: False
+  RES_PATH: './exp_pawvit_atrw'
+  NUM_EPOCHS: 50
+  EVAL_PERIOD: 10
+  LOG_PERIOD: 1
+  EARLY_STOP: 20
+  FP16: False
+
+
+# Adding variables of hp tuning
+HP_TUNING: False
+N_TRIALS: 200
+HP_PARAMETERS:
+  DATASETS:
+    BATCH_SIZE: {"name": "batch_size", "low": 16, "high": 128, "step": 16}
+    NUM_INSTANCES: {"name": "num_instances", "low": 4, "high": 16, "step": 4}
+
+  LOSS:
+    MARGIN: {"name": "margin", "low": 0.1, "high": 0.4, "step": 0.1}
+    LS_EPSILON: {"name": "ls_epsilon", "low": 0.0, "high": 0.2, "step": 0.05}
+
+
+LOG_PATH: './exp'
+DEVICE_ID: [0]
